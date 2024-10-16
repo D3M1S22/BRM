@@ -1,5 +1,3 @@
-import HeaderNav from '@/components/header';
-
 
 export default function DashboardLayout({
   children,
@@ -9,7 +7,6 @@ export default function DashboardLayout({
 
   return (
     <div className="h-full">
-      <HeaderNav />
       <main className="h-full">{children? children :""}</main>
     </div>
   );

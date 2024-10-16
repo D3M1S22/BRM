@@ -1,20 +1,66 @@
 "use client";
-
-
 import Image from "next/image";
-
-import {
-  useAuthModal,
-  useUser,
-} from "@account-kit/react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { SecretNetworkClient } from "secretjs";
+import { useWalletStore } from "@/stores/useWallet";
+import 'viem/window'
+import { useAppKit } from '@reown/appkit/react';
+import { useAccount } from "wagmi";
 
 export default function Home() {
-  const { openAuthModal } = useAuthModal();
-  const user = useUser();
-  const router = useRouter();
+  const [pageLoaded, setPageLoaded] = useState(false);
+  //const chainId = process.env.NEXT_PUBLIC_CHAIN_ID;
+  //const chainUrl = process.env.NEXT_PUBLIC_WALLET_URL;
+  const {wallet, setWallet} = useWalletStore((state) => state);
+  const { address } = useAccount()
+  const { open } = useAppKit()
 
-  if(user?.address) router.push("/mint");
+
+  useEffect(() => {
+    if (typeof window !== 'undefined')
+      if(window.keplr && window.getEnigmaUtils && window.getOfflineSignerOnlyAmino)
+        setPageLoaded(true);
+  }, []);
+  
+  useEffect(()=>{
+    if(!pageLoaded && !address) return; 
+    (
+      async () => {
+        await open(); 
+      }
+    )();
+  }, [pageLoaded]);
+
+//useEffect(() => {
+  //  if (!pageLoaded && !wallet) return;
+  //
+  //  (
+  //    async () => {
+  //      await window.keplr.enable(chainId);
+  //      const keplrOfflineSigner = window.keplr.getOfflineSignerOnlyAmino(chainId);
+  //      const [{ address: myAddress }] = await keplrOfflineSigner.getAccounts();
+  //
+  //
+  //      const secretjs = new SecretNetworkClient({
+  //        url: chainUrl || "", 
+  //        chainId: chainId || "",
+  //        wallet: keplrOfflineSigner,
+  //        walletAddress: myAddress,
+  //        encryptionUtils: window.keplr.getEnigmaUtils(chainId),
+  //      });
+  //      setWallet(secretjs);
+  //    }
+  //  )();
+  //
+  //}, [pageLoaded]);
+
+
+  const router = useRouter();
+  
+  if(!pageLoaded)
+    return (<>Loading...</>);
+  //if(user?.address) router.push("/mint");
 
   return (
     <div className="flex flex-row justify-center items-center justify-items-center min-h-screen p-8 md:p-24 pb-20 gap-4 md:gap-24">
@@ -25,10 +71,16 @@ export default function Home() {
           </div>
           <div className="text-lg text-center md:text-left">
             Making real-world luxury assets accessible to everyone, everywhere, through Web3 technology, democratizing ownership and investment opportunities globally.
-          </div>  
-          <button className="btn btn-primary" onClick={openAuthModal}>
-            Login
-          </button>
+          </div>
+          { !address ? 
+              <button className="btn btn-primary" onClick={async()=>await open()}>
+                Login
+              </button>
+          :
+            <button className="btn btn-primary" onClick={()=>router.push("/mint")}>
+              Mint Page
+            </button>
+          }
         </div>
         <div className="w-full md:w-1/2 flex items-center justify-center">
           <Image

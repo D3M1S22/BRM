@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
-import {Providers}  from "./providers";
 import HeaderNav from '@/components/header';
-import { config } from "@/config";
-import { cookieToInitialState } from "@account-kit/core";
-import { headers } from "next/headers";
 import { Inter } from "next/font/google";
+import React from "react";
+import { WalletStoreProvider } from "@/stores/useWallet";
+import Providers from "@/app/providers";
 
 const inter = Inter({ subsets: ["latin"] });
+
+import { headers } from 'next/headers' // added
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -21,21 +22,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const initialState = cookieToInitialState(
-    config,
-    headers().get("cookie") ?? undefined
-  );
+  const cookies = headers().get('cookie')
 
   return (
-      <html lang="en">
-        <body
-          className={`${inter.className} antialiased`}
-        >
-            <Providers initialState={initialState}>
-              <HeaderNav />
+    <html lang="en">
+      <script src="http://localhost:8097" async={true} ></script>
+      <body className={`${inter.className} antialiased`} >
+        <Providers cookies={cookies}>  
+          <WalletStoreProvider>
+            <HeaderNav />
               {children}
-            </Providers>
-        </body>
-      </html>
+            </WalletStoreProvider>
+        </Providers>
+      </body>
+    </html>
   );
 }

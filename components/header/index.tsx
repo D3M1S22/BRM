@@ -6,7 +6,10 @@ import Link from 'next/link'
 import { Menu, X, User, ChevronDown, LogOut } from 'lucide-react'
 import { cropWalletAddress } from '@/utils'
 import { useRouter } from "next/navigation";
-import { useLogout, useUser } from '@account-kit/react'
+import { useDisconnect } from 'wagmi'
+import { useAccount } from "wagmi";
+//import { useLogout, useUser } from '@account-kit/react'
+//import { useWalletStore } from '@/stores/useWallet'
 
 export default function HeaderNav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -14,9 +17,12 @@ export default function HeaderNav() {
   const [isMounted, setIsMounted] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
-  const { logout } = useLogout();
-  const user = useUser();
+  //const { logout } = useLogout();
+  //const user = useUser();
+  //const {wallet, logout} = useWalletStore((state) => state);
 
+  const { disconnect } = useDisconnect()
+  const { address } = useAccount()
   useEffect(() => {
     setIsMounted(true)
 
@@ -36,8 +42,6 @@ export default function HeaderNav() {
     return null;
   }
 
-  if(!user?.address) router.push("/");
-
   return (
     <header className="fixed top-0 left-0 right-0 bg-black shadow-md z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,20 +58,20 @@ export default function HeaderNav() {
 
           {/* User Info / Login Button */}
           <div className="hidden md:block">
-            {user ? (
+            {address ? (
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="flex items-center space-x-2 text-gray-700 hover:text-pink-500 focus:outline-none"
                 >
                   <User className="h-6 w-6" />
-                  <span className="font-medium">{cropWalletAddress(user.address)}</span>
+                  <span className="font-medium">{cropWalletAddress(address)}</span>
                   <ChevronDown className="h-4 w-4" />
                 </button>
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
                     <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</Link>
-                    <button onClick={logout} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <button onClick={()=>{disconnect(); router.push("/");}} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       Logout
                     </button>
                   </div>
@@ -101,10 +105,10 @@ export default function HeaderNav() {
       {isMenuOpen && (
         <div className="md:hidden absolute top-16 left-0 right-0 bg-black shadow-md">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {user ? (
+            {address ? (
               <>
                 <Link href="/profile" className="text-gray-700 hover:text-pink-500 block px-3 py-2 rounded-md text-base font-medium">Profile</Link>
-                <button onClick={logout} className="text-gray-700 hover:text-pink-500 block w-full text-left px-3 py-2 rounded-md text-base font-medium">
+                <button onClick={async ()=>{  disconnect(); router.push("/");}} className="text-gray-700 hover:text-pink-500 block w-full text-left px-3 py-2 rounded-md text-base font-medium">
                   Logout
                 </button>
               </>

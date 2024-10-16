@@ -16,6 +16,11 @@ contract SecretNFT is ERC721, Ownable {
         uint256 cost;
         uint256 maxDebt;
         uint256 lastPaid;
+        uint256 tokenId;
+        string nftName;
+        string nftDescription;
+        string nftImage;
+        string nftCategory;
     }
 
     mapping(uint256 => TokenMetadata) private _tokenMetadata;
@@ -30,10 +35,10 @@ contract SecretNFT is ERC721, Ownable {
     }
     
 
-    function safeMint(address to, uint256 tokenCost, uint256 tokenMaxdebt) public {
+    function safeMint(address to, uint256 tokenCost, uint256 tokenMaxdebt, string memory nName, string memory nDescription, string memory nImage, string memory nCategory) public {
     uint256 tokenId = _nextTokenId++;
     _safeMint(to, tokenId);
-    _setTokenMetadata(tokenId, tokenCost, tokenMaxdebt, block.timestamp);
+    _setTokenMetadata(tokenId, tokenCost, tokenMaxdebt, block.timestamp, nName, nDescription, nImage, nCategory);
     // _setTokenURI(tokenId, uri);
     }
 
@@ -45,7 +50,11 @@ contract SecretNFT is ERC721, Ownable {
         uint256 tokenId,
         uint256 cost,
         uint256 maxDebt,
-        uint256 lastPaid
+        uint256 lastPaid,
+        string memory nName,
+        string memory nDescription,
+        string memory nImage,
+        string memory nCategory
     ) internal {
         require(_exists(tokenId), "ERC721Metadata: Metadata set of nonexistent token");
 
@@ -54,6 +63,11 @@ contract SecretNFT is ERC721, Ownable {
             cost: cost,
             maxDebt : maxDebt,
             lastPaid : lastPaid
+            tokenId : tokenId,
+            nftName : nName,
+            nftDescription : nDescription,
+            nftImage : nImage,
+            nftCategory : nCategory
         });
     }
 
